@@ -1299,6 +1299,8 @@ open class CameraManager: NSObject, AVCaptureFileOutputRecordingDelegate, UIGest
         return newStillImageOutput
     }
     
+    public var canOverrideOrientation = false
+    
     @objc fileprivate func _orientationChanged() {
         var currentConnection: AVCaptureConnection?
         
@@ -1316,12 +1318,16 @@ open class CameraManager: NSObject, AVCaptureFileOutputRecordingDelegate, UIGest
             if !shouldKeepViewAtOrientationChanges {
                 if let validPreviewLayerConnection = validPreviewLayer.connection,
                     validPreviewLayerConnection.isVideoOrientationSupported {
-                    validPreviewLayerConnection.videoOrientation = _currentPreviewVideoOrientation()
+                    if canOverrideOrientation{
+                        validPreviewLayerConnection.videoOrientation = _currentPreviewVideoOrientation()
+                    }
                 }
             }
             if let validOutputLayerConnection = currentConnection,
                 validOutputLayerConnection.isVideoOrientationSupported {
-                validOutputLayerConnection.videoOrientation = _currentCaptureVideoOrientation()
+                if canOverrideOrientation{
+                    validOutputLayerConnection.videoOrientation = _currentCaptureVideoOrientation()
+                }
             }
             if !shouldKeepViewAtOrientationChanges && cameraIsObservingDeviceOrientation {
                 DispatchQueue.main.async { () -> Void in
